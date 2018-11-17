@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_topics"
+        android:icon="@drawable/ic_featured_play_list_black_24dp"
+        android:title="@string/title_topic" />
+
+    <item
+        android:id="@+id/nav_liked"
+        android:icon="@drawable/ic_favorite_black_24dp"
+        android:title="@string/title_liked" />
+
+    <item
+        android:id="@+id/nav_notifications"
+        android:icon="@drawable/ic_notifications_black_24dp"
+        android:title="@string/title_notifications" />
+
+</menu>
