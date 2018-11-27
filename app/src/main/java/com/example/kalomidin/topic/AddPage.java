@@ -52,18 +52,18 @@ public class AddPage extends AppCompatActivity {
         SwipeMenuCreator add_SwipeMenu = new SwipeMenuCreator() {
             @Override
             public void create(SwipeMenu menu) {
-        SwipeMenuItem favoriteItem = new SwipeMenuItem(
-                getApplicationContext());
-        // set item background
-        favoriteItem.setBackground(new ColorDrawable(Color.rgb(0x33,
-                0xff, 0xcc)));
-        // set item width
-        favoriteItem.setWidth(180);
-        // set a icon
-        favoriteItem.setIcon(R.drawable.ic_favorite);
-        // add to menu
-        menu.addMenuItem(favoriteItem);
-        }};
+                SwipeMenuItem favoriteItem = new SwipeMenuItem(
+                        getApplicationContext());
+                // set item background
+                favoriteItem.setBackground(new ColorDrawable(Color.rgb(0x33,
+                        0xff, 0xcc)));
+                // set item width
+                favoriteItem.setWidth(180);
+                // set a icon
+                favoriteItem.setIcon(R.drawable.ic_favorite);
+                // add to menu
+                menu.addMenuItem(favoriteItem);
+            }};
         listView.setMenuCreator(add_SwipeMenu);
         listView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
             @Override
@@ -85,19 +85,6 @@ public class AddPage extends AppCompatActivity {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 final String a=query;
-              adding.setOnClickListener(new View.OnClickListener() {
-                  @Override
-                  public void onClick(View v){
-                          likes.add(a);
-                          add.notifyDataSetChanged();
-                  }
-              });
-              return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                final String a=newText;
                 adding.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v){
@@ -105,6 +92,11 @@ public class AddPage extends AppCompatActivity {
                         add.notifyDataSetChanged();
                     }
                 });
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
                 return false;
             }
         });

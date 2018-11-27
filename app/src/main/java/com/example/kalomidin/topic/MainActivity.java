@@ -17,7 +17,9 @@ import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.ProgressBar;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,6 +39,7 @@ public class MainActivity extends AppCompatActivity {
     public static Button topic;
     public static String result;
     public static int k=0;
+    public static Switch switch1;
     public static SwipeMenuCreator topic_SwipeMenu;
     public static SwipeMenuCreator result_SwipeMenu;
     public static ArrayAdapter<String> topic_result_adapter;
@@ -48,18 +51,22 @@ public class MainActivity extends AppCompatActivity {
         return progressBar;
     }
     public ArrayList<String> get_Likes(){
-            return liked_list;
+        return liked_list;
     }
-
+    public static Button addinterest;
     public static String get_Topic() {
         return result;
     }
+    public static ArrayList<String> get_Topics(){ return topic_list;}
+    public void setResult(String result){
+        this.result=result;
+    }
     public void topic_activity(){
-        setContentView(R.layout.activity_main);
-        listView=(SwipeMenuListView)findViewById(R.id.listView);
-        mTextMessage = (TextView) findViewById(R.id.message);
-        Button addinterest=(Button)findViewById(R.id.add);
+        switch1=(Switch)findViewById(R.id.switch1);
+        switch1.setVisibility(View.GONE);
         topic_list=new ArrayList<String>();
+        for(int i=0;i<topic_list.size();i++)
+            Log.d("dsds",topic_list.get(i));
         topic_adapter=new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_list_item_1,topic_list);
         listView.setAdapter(topic_adapter);
         topic_SwipeMenu = new SwipeMenuCreator() {
@@ -83,16 +90,16 @@ public class MainActivity extends AppCompatActivity {
         listView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
-                        ArrayList<String> topiclist1=new ArrayList<String>();
-                        topiclist1=topic_list;
-                        topiclist1.remove(position);
-                        ArrayAdapter<String> topic_adapter1=new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_list_item_1,topiclist1);
-                        listView.setAdapter(topic_adapter1);
-                        topic_adapter=topic_adapter1;
-                        topic_list=topiclist1;
-                        //print the message
-                        Toast toast = Toast.makeText(getApplicationContext(), "Removed Topic", Toast.LENGTH_SHORT);
-                        toast.show();
+                ArrayList<String> topiclist1=new ArrayList<String>();
+                topiclist1=topic_list;
+                topiclist1.remove(position);
+                ArrayAdapter<String> topic_adapter1=new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_list_item_1,topiclist1);
+                listView.setAdapter(topic_adapter1);
+                topic_adapter=topic_adapter1;
+                topic_list=topiclist1;
+                //print the message
+                Toast toast = Toast.makeText(getApplicationContext(), "Removed Topic", Toast.LENGTH_SHORT);
+                toast.show();
                 return false;
                 // false : close the menu; true : not close the menu
             }
@@ -105,13 +112,13 @@ public class MainActivity extends AppCompatActivity {
                 result=topic_list.get(position);
                 topicActivity();
 
-    }});
+            }});
         TopicPage a=new TopicPage();
         a.setLinks(new ArrayList<String>());
         a.setTitles(new ArrayList<String>());
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
-    //addinterest botton
+        //addinterest botton
         addinterest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -137,8 +144,7 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
     public void liked_activity(){
-        setContentView(R.layout.liked_articles);
-        listView=(SwipeMenuListView)findViewById(R.id.listView_liked);
+        switch1.setVisibility(View.GONE);
         final ArrayAdapter<String> liked_adapter=new ArrayAdapter<String>(MainActivity.this,android.R.layout.simple_list_item_1,liked_list);
         listView.setAdapter(liked_adapter);
         SwipeMenuCreator liked_SwipeMenu = new SwipeMenuCreator() {
@@ -221,15 +227,31 @@ public class MainActivity extends AppCompatActivity {
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             switch (item.getItemId()) {
                 case R.id.nav_topics:
+                    addinterest.setVisibility(View.VISIBLE);
                     topic_activity();
                     return true;
                 case R.id.nav_liked:
                     TopicPage a=new TopicPage();
                     liked_list=a.getLikes();
+                    addinterest.setVisibility(View.GONE);
                     Log.d("sdsd","Entering Liked");
                     liked_activity();
                     return true;
                 case R.id.nav_notifications:
+                    Log.d("sdsd", "Entering Notifications");
+
+                    switch1.setVisibility(View.VISIBLE);
+                    addinterest.setVisibility(View.GONE);
+                    switch1.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                        @Override
+                        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                            if (isChecked) {
+                                Log.d("sdsd", "Entering Likeddsddsd");
+                                Intent intent = new Intent(MainActivity.this, Background.class);
+                                startService(intent);
+                                Log.d("sdsd", "Entering Likedyyeye");
+                            }}
+                    });
                     return true;
             }
             return false;
@@ -239,7 +261,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        listView=(SwipeMenuListView)findViewById(R.id.listView);
+        mTextMessage = (TextView) findViewById(R.id.message);
+        addinterest=(Button)findViewById(R.id.add);
         topic_activity();
+        AddPage sdd=new AddPage();
+        ArrayList<String> likedones=sdd.getLiked_list();
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
     }

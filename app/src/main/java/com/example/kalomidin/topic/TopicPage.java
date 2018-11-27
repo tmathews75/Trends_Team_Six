@@ -67,7 +67,7 @@ public class TopicPage extends AppCompatActivity {
         return links;
     }
     public static void setLinks(ArrayList<String> linkss) {
-         links=linkss;
+        links=linkss;
     }
     public static void setTitles(ArrayList<String> titless) {
         titles=titless;
@@ -97,128 +97,131 @@ public class TopicPage extends AppCompatActivity {
 
         String searchStringNoSpaces = topic.replace(" ", "+");
 
-                //Api Key
-                String APIKey = "AIzaSyBP8aw1sWdDsd9zkRjOE_nRJ3vyI8e4t-4";
+        //Api Key
+        String APIKey = "AIzaSyDTabDlaIVlL307Z50SIxmTcLNy6S_n8hs";
 
-                //Search Engine ID
-                String searchEngineID = "010128440179048027073:g7abrcahlou";
+        //Search Engine ID
+        String searchEngineID = "010128440179048027073:g7abrcahlou";
 
-                //Set the URL String
-                String URLString = "https://www.googleapis.com/customsearch/v1?q=" + searchStringNoSpaces + "&key=" + APIKey + "&cx=" + searchEngineID + "&alt=json";
+        //Set the URL String
+        String URLString = "https://www.googleapis.com/customsearch/v1?q=" + searchStringNoSpaces + "&key=" + APIKey + "&cx=" + searchEngineID + "&alt=json";
 
-                URL searchURL = null;
+        URL searchURL = null;
 
-                try {
+        try {
 
-                    searchURL = new URL(URLString);
+            searchURL = new URL(URLString);
 
-                } catch (MalformedURLException e) {
+        } catch (MalformedURLException e) {
 
-                    Log.e(TAG, "***** ERROR Converting String to URL *****");
+            Log.e(TAG, "***** ERROR Converting String to URL *****");
 
+        }
+
+        Log.d(TAG, "***** URL is " + URLString);
+
+        GoogleSearchAsyncTask searchTask = new GoogleSearchAsyncTask();
+        try {
+            result = searchTask.execute(searchURL).get();
+            Log.d("IThasnotcausedException", URLString);
+            //Hide Progress Bar
+            progressBar.setVisibility(View.GONE);
+            try {
+
+                JSONObject resultReader = new JSONObject(result);
+
+                JSONArray items = resultReader.getJSONArray("items");
+                //Loop
+                for (int i = 1; i <= items.length(); i++) {
+
+                    JSONObject pointer = items.getJSONObject(i);
+                    Log.d("I am in", titles.size() + "fdsfsd");
+                    titles.add(pointer.getString("title"));
+                    links.add(pointer.getString("formattedUrl"));
                 }
+                Log.d("I am out", titles.size() + "fdsfsd");
 
-                Log.d(TAG, "***** URL is " + URLString);
+            } catch (final JSONException e) {
+                Log.d("I am out", titles.size() + "fdsfsd");
+            }
+        }catch(Exception E){
+            Log.d("IT has caused Exception"," Not Reading return");}
+            for(int i=0;i<titles.size();i++)
+                Log.d("dsdsds",titles.get(i));
+            topic_result_adapter=new ArrayAdapter<String>(TopicPage.this,android.R.layout.simple_list_item_1,titles);
+        listView.setAdapter(topic_result_adapter);
+        result_SwipeMenu = new SwipeMenuCreator() {
+            @Override
+            public void create(SwipeMenu menu) {
+                // create "delete" item
+                SwipeMenuItem shareItem = new SwipeMenuItem(
+                        getApplicationContext());
+                // set item background
+                shareItem.setBackground(new ColorDrawable(Color.rgb(0x33,
+                        0xff, 0xcc)));
+                // set item width
+                shareItem.setWidth(180);
+                // set a icon
+                shareItem.setIcon(R.drawable.ic_share);
+                // add to menu
+                menu.addMenuItem(shareItem);
+                SwipeMenuItem favoriteItem = new SwipeMenuItem(
+                        getApplicationContext());
+                // set item background
+                favoriteItem.setBackground(new ColorDrawable(Color.rgb(0x33,
+                        0xff, 0xcc)));
+                // set item width
+                favoriteItem.setWidth(180);
+                // set a icon
+                favoriteItem.setIcon(R.drawable.ic_favorite);
+                // add to menu
+                menu.addMenuItem(favoriteItem);
 
-                GoogleSearchAsyncTask searchTask = new GoogleSearchAsyncTask();
-                try {
-                    result = searchTask.execute(searchURL).get();
-                    Log.d("IThasnotcausedException", URLString);
-                    //Hide Progress Bar
-                    progressBar.setVisibility(View.GONE);
-                    try {
-
-                        JSONObject resultReader = new JSONObject(result);
-
-                        JSONArray items = resultReader.getJSONArray("items");
-
-                        //Loop
-                        for (int i = 1; i <= items.length(); i++) {
-
-                            JSONObject pointer = items.getJSONObject(i);
-                                Log.d("I am in", titles.size() + "fdsfsd");
-                                titles.add(pointer.getString("title"));
-                                links.add(pointer.getString("formattedUrl"));
-                        }
-
-                    } catch (final JSONException e) {
-                        Log.d("I am out", titles.size() + "fdsfsd");
-                    }
-                }catch(Exception E){
-                    Log.d("IT has caused Exception"," Not Reading return");}
-                    topic_result_adapter=new ArrayAdapter<String>(TopicPage.this,android.R.layout.simple_list_item_1,titles);
+            }
+        };
+        listView.setMenuCreator(result_SwipeMenu);
+        //listView.requestLayout();
+        listView.setOnItemClickListener(new SwipeMenuListView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //topic_result_adapter.notifyDataSetChanged();
+                Toast toast = Toast.makeText(getApplicationContext(), "Topic"+position+" selected", Toast.LENGTH_SHORT);
+                toast.show();
+                String substring=links.get(position).substring(0,4);
+                if(substring.equals("http")){
+                    Intent searching=new Intent(Intent.ACTION_VIEW, Uri.parse(links.get(position)));
+                    startActivity(searching);}
+                else{
+                    Intent searching=new Intent(Intent.ACTION_VIEW, Uri.parse("https://"+links.get(position)));
+                    startActivity(searching);}
+            }
+        });
+        listView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
+                //      topic_result_adapter.notifyDataSetChanged();
+                if(index==0){
+                    //share bottom
+                    Intent a=new Intent(Intent.ACTION_SEND);
+                    a.setType("text/plain");
+                    String shareBody="Your body here";
+                    String shareSub="Your Subject here";
+                    a.putExtra(Intent.EXTRA_SUBJECT,shareSub);
+                    a.putExtra(Intent.EXTRA_SUBJECT,shareBody);
+                    startActivity(Intent.createChooser(a,"share options"));
+                    return false;}
+                else if(index==1){
+                    Toast toast = Toast.makeText(getApplicationContext(), "Article "+titles.get(position)+" added to favorities", Toast.LENGTH_SHORT);
+                    toast.show();
+                    liked_list.add(titles.get(position));
+                    liked_listlinks.add(links.get(position));
+                    topic_result_adapter.notifyDataSetChanged();
                     listView.setAdapter(topic_result_adapter);
-                    result_SwipeMenu = new SwipeMenuCreator() {
-                        @Override
-                        public void create(SwipeMenu menu) {
-                            // create "delete" item
-                            SwipeMenuItem shareItem = new SwipeMenuItem(
-                                    getApplicationContext());
-                            // set item background
-                            shareItem.setBackground(new ColorDrawable(Color.rgb(0x33,
-                                    0xff, 0xcc)));
-                            // set item width
-                            shareItem.setWidth(180);
-                            // set a icon
-                            shareItem.setIcon(R.drawable.ic_share);
-                            // add to menu
-                            menu.addMenuItem(shareItem);
-                            SwipeMenuItem favoriteItem = new SwipeMenuItem(
-                                    getApplicationContext());
-                            // set item background
-                            favoriteItem.setBackground(new ColorDrawable(Color.rgb(0x33,
-                                    0xff, 0xcc)));
-                            // set item width
-                            favoriteItem.setWidth(180);
-                            // set a icon
-                            favoriteItem.setIcon(R.drawable.ic_favorite);
-                            // add to menu
-                            menu.addMenuItem(favoriteItem);
-
-                        }
-                    };
-                    listView.setMenuCreator(result_SwipeMenu);
-                    //listView.requestLayout();
-                    listView.setOnItemClickListener(new SwipeMenuListView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            //topic_result_adapter.notifyDataSetChanged();
-                            Toast toast = Toast.makeText(getApplicationContext(), "Topic"+position+" selected", Toast.LENGTH_SHORT);
-                            toast.show();
-                            String substring=links.get(position).substring(0,4);
-                            if(substring.equals("http")){
-                                Intent searching=new Intent(Intent.ACTION_VIEW, Uri.parse(links.get(position)));
-                                startActivity(searching);}
-                            else{
-                                Intent searching=new Intent(Intent.ACTION_VIEW, Uri.parse("https://"+links.get(position)));
-                                startActivity(searching);}
-                        }
-                    });
-                    listView.setOnMenuItemClickListener(new SwipeMenuListView.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(int position, SwipeMenu menu, int index) {
-                            //      topic_result_adapter.notifyDataSetChanged();
-                            if(index==0){
-                                    //share bottom
-                                    Intent a=new Intent(Intent.ACTION_SEND);
-                                    a.setType("text/plain");
-                                    String shareBody="Your body here";
-                                    String shareSub="Your Subject here";
-                                    a.putExtra(Intent.EXTRA_SUBJECT,shareSub);
-                                    a.putExtra(Intent.EXTRA_SUBJECT,shareBody);
-                                    startActivity(Intent.createChooser(a,"share options"));
-                                    return false;}
-                                    else if(index==1){
-                                    Toast toast = Toast.makeText(getApplicationContext(), "Article "+titles.get(position)+" added to favorities", Toast.LENGTH_SHORT);
-                                    toast.show();
-                                    liked_list.add(titles.get(position));
-                                    liked_listlinks.add(links.get(position));
-                                    topic_result_adapter.notifyDataSetChanged();
-                                    return false;}
-                                    return false;
-                        }
-                    });
-                }
+                    return false;}
+                return false;
+            }
+        });
+    }
 
 
     private class GoogleSearchAsyncTask extends AsyncTask<URL, Integer, String> {
@@ -317,4 +320,4 @@ public class TopicPage extends AppCompatActivity {
 
         }
 
-}}
+    }}
